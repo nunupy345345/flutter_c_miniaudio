@@ -37,6 +37,7 @@ class _AudioAppState extends State<AudioApp> {
   void toggleRecording() {
     if (isRecording) {
       stopAudio();
+      initAudio();
     } else {
       if (startAudio() != 0) {
         debugPrint("Failed to start audio");

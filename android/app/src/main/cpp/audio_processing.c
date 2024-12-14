@@ -5,12 +5,30 @@
 ma_device device;
 ma_device_config deviceConfig;
 
+// リングバッファを追加
+#define BUFFER_SIZE 4800 // 100ms at 48kHz
+ma_int16 inputBuffer[BUFFER_SIZE];
+int writePos = 0;
+int readPos = 0;
+
 // コールバック関数
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
 {
+  ma_int16 *output = (ma_int16 *)pOutput;
+  const ma_int16 *input = (const ma_int16 *)pInput;
+
   if (pInput && pOutput)
   {
-    memcpy(pOutput, pInput, frameCount * ma_get_bytes_per_frame(pDevice->capture.format, pDevice->capture.channels));
+    for (ma_uint32 i = 0; i < frameCount; i++)
+    {
+      // 入力サンプルをバッファに書き込む
+      inputBuffer[writePos] = input[i];
+      writePos = (writePos + 1) % BUFFER_SIZE;
+
+      // ピッチを下げるために2サンプルおきに読み出す
+      output[i] = inputBuffer[readPos];
+      readPos = (readPos + 2) % BUFFER_SIZE;
+    }
   }
 }
 
@@ -24,6 +42,11 @@ int init_audio()
   deviceConfig.playback.channels = 1;
   deviceConfig.sampleRate = 48000;
   deviceConfig.dataCallback = data_callback;
+
+  // バッファを初期化
+  memset(inputBuffer, 0, sizeof(inputBuffer));
+  writePos = 0;
+  readPos = 0;
 
   if (ma_device_init(NULL, &deviceConfig, &device) != MA_SUCCESS)
   {
