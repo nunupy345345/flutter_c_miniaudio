@@ -1,11 +1,7 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.4.1)
 
-project(miniaudio_wrapper)
+# ライブラリをビルドする
+add_library(audio_processing SHARED audio_processing.c)
 
-add_library(miniaudio_wrapper SHARED
-    miniaudio_wrapper.c
-)
-
-target_include_directories(miniaudio_wrapper PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+# include ディレクトリを指定
+target_include_directories(audio_processing PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
