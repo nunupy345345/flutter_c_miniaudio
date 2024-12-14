@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'src/audio_binding.dart';
 
 void main() {
   runApp(const MyApp());
