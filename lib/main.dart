@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_c_miniaudio/src/native_audio.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,10 +28,24 @@ class _AudioAppState extends State<AudioApp> {
   @override
   void initState() {
     super.initState();
+    _requestPermissions();
     if (initAudio() != 0) {
       debugPrint("Failed to initialize audio");
     } else {
       debugPrint("Audio initialized successfully");
+    }
+  }
+
+  Future<void> _requestPermissions() async {
+    final status = await Permission.microphone.request();
+    if (status.isGranted) {
+      if (initAudio() != 0) {
+        debugPrint("Failed to initialize audio");
+      } else {
+        debugPrint("Audio initialized successfully");
+      }
+    } else {
+      debugPrint("Microphone permission denied");
     }
   }
 
